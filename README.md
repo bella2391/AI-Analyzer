@@ -1,16 +1,16 @@
 # AI-Analyzer
 ## Require
-- Gemini API Key
+- Gemini API Key  
 This is got from [https://aistudio.google.com/](https://aistudio.google.com/).  
 And you have to set environment value as `GEMINI_API_KEY`.
 - Python
 
 ## Dependency
-- google-genai
+- google-genai  
 Adapted as main ai chat analyzer.
-- numpy
+- numpy  
 Calculate cosine similarities.
-- jupyter
+- jupyter  
 Using only Ipython.Markdown at present.
   
 see [requirements.txt](requirements.txt) in detail
