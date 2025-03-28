@@ -6,6 +6,7 @@ And you have to set environment value as `GEMINI_API_KEY`.
 - Python
 
 ## Dependency
+### Python's
 - google-genai  
 Adapted as main ai chat analyzer.
 - numpy  
