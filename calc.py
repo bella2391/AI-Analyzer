@@ -23,26 +23,41 @@ conn_question = sqlite3.connect("question.db")
 cursor_question = conn_question.cursor()
 cursor_question.execute("SELECT embedding FROM embeddings")
 
-try:
-  # embedding_question = cursor_question.fetchone()[0]
-  embedding_question = json.loads(cursor_question.fetchone()[0])
-except json.JSONDecodeError as e:
-  print(f"Error: JSON decoding failed: {e}")
+row = cursor_question.fetchone()
+if row is None:
+  print("Error: No data found in question.db")
+  sys.exit(1)
+
+embedding_raw = row[0]
+
+if isinstance(embedding_raw, bytes):
+  print("Detected binary data, converting to NumPy array...")
+  try:
+    embedding_question = np.frombuffer(embedding_raw, dtype=np.float32)
+  except Exception as e:
+    print(f"Error: Failed to convert binary to NumPy array: {e}")
+    sys.exit(1)
+else:
+  print("Error: Expected binary data, but got string.")
   sys.exit(1)
 
 # calculate cosine similarity
 similarities = []
-for embedding_out in embeddings_out:
+for embedding_out, content in embeddings_out:
   try:
-    embedding_list = json.loads(embedding_out[0])
+    embedding_list = np.frombuffer(embedding_out, dtype=np.float32)
     similarity = calculate_cosine_similarity(embedding_list, embedding_question)
-    similarities.append(similarity)
+    similarities.append((similarity, content))
   except json.JSONDecodeError as e:
     print(f"Warning: JSON decoding failed for one embedding: {e}")
     continue
 
-cursor_out.execute("SELECT content FROM embeddings ORDER BY similarity DESC LIMIT 1")
-code_snippet = cursor_out.fetchone()[0]
+if not similarities:
+  print("Error: No valid embedding found.")
+  sys.exit(1)
+
+similarities.sort(reverse=True, key=lambda x: x[0])
+code_snippet = similarities[0][1]
 
 print(code_snippet)
 
@@ -56,7 +71,7 @@ if not api_key:
 MODEL_ID = "gemini-2.0-flash"
 client = genai.Client(api_key=api_key)
 
-prompt = f"What do this code? How do it function?: {code_snippet}"
+prompt = f"What does this code do? How does it function?: {code_snippet}"
 
 try:
   response = client.models.generate_content(model=MODEL_ID, contents=prompt)
