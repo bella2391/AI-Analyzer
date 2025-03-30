@@ -14,7 +14,7 @@ def calculate_cosine_similarity(vector1, vector2):
 # gemini eat source db file
 conn_out = sqlite3.connect("fmc_common.db")
 cursor_out = conn_out.cursor()
-cursor_out.execute("SELECT embedding FROM embeddings")
+cursor_out.execute("SELECT id, embedding FROM embeddings")
 embeddings_out = cursor_out.fetchall()
 
 # read question
