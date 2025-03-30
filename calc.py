@@ -5,7 +5,6 @@ import sys
 
 import numpy as np
 from google import genai
-from IPython.display import Markdown
 
 
 def calculate_cosine_similarity(vector1, vector2):
@@ -75,6 +74,6 @@ prompt = f"What does this code do? How does it function?: {code_snippet}"
 
 try:
   response = client.models.generate_content(model=MODEL_ID, contents=prompt)
-  Markdown(response.text)
+  print(response.text)
 except Exception as e:
   print(f"Error: failed to request gemini api: {e}")
