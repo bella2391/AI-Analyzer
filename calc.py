@@ -11,6 +11,11 @@ def calculate_cosine_similarity(vector1, vector2):
   return np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
 
 
+def get_file_extension(filepath):
+  _, extension = os.path.splitext(filepath)
+  return extension
+
+
 # gemini eat source db file
 conn_out = sqlite3.connect("fmc_common.db")
 cursor_out = conn_out.cursor()
@@ -60,6 +65,16 @@ most_similar_id = similarities[0][1]
 
 print(f"Most similar embedding ID: {most_similar_id}")
 
+cursor_out.execute("SELECT embedding FROM embedding WHERE id = ?", (most_similar_id,))
+row = cursor_out.fetchone()
+
+if row is None:
+  print(f"Error: No content found for ID {most_similar_id}")
+  sys.exit(1)
+
+embdding_raw = row[0]
+file_content = embedding_raw.decode("utf-8")
+
 # check existence of environment values
 api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
@@ -69,11 +84,18 @@ if not api_key:
 # see docs: https://github.com/google-gemini/cookbook/blob/main/quickstarts/Get_started.ipynb
 MODEL_ID = "gemini-2.0-flash"
 
-prompt = f"What does this code do? How does it function?: {code_snippet}"
 client = genai.Client(api_key=api_key)
 
 try:
+  prompt = f"""Explain the content about below code by Japanse:
+
+  ```{get_file_extension(most_similar_id)}
+  {file_content}
+  ```
+  """
+
   response = client.models.generate_content(model=MODEL_ID, contents=prompt)
+
   print(response.text)
 except Exception as e:
   print(f"Error: failed to request gemini api: {e}")
