@@ -68,12 +68,14 @@ if not api_key:
 
 # see docs: https://github.com/google-gemini/cookbook/blob/main/quickstarts/Get_started.ipynb
 MODEL_ID = "gemini-2.0-flash"
-client = genai.Client(api_key=api_key)
 
 prompt = f"What does this code do? How does it function?: {code_snippet}"
+client = genai.Client(api_key=api_key)
 
 try:
   response = client.models.generate_content(model=MODEL_ID, contents=prompt)
   print(response.text)
 except Exception as e:
   print(f"Error: failed to request gemini api: {e}")
+finally:
+  del client
