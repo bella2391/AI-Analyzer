@@ -17,7 +17,7 @@ def get_file_extension(filepath):
 
 
 # gemini eat source db file
-conn_out = sqlite3.connect("fmc_common.db")
+conn_out = sqlite3.connect("fmc_common_database.db")
 cursor_out = conn_out.cursor()
 cursor_out.execute("SELECT id, embedding FROM embeddings")
 embeddings_out = cursor_out.fetchall()
