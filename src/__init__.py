@@ -1,8 +1,8 @@
-from .gemini import prompt
+from .gemini import client
 from .utils import database, file, similarity
 
 __all__ = [
-  "prompt",
+  "client",
   "similarity",
   "database",
   "file",

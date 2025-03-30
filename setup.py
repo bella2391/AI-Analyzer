@@ -1,12 +1,10 @@
 import argparse
 import os
 import sqlite3
-import sys
 
 import numpy as np
-from google import genai
 
-from src.gemini.prompt import generate_gemini_response
+from src.gemini.client import GeminiAPIClient
 from src.utils.database import get_embedding_question, get_embeddings, get_file_content
 from src.utils.file import get_file_extension
 from src.utils.similarity import calculate_cosine_similarity
@@ -43,13 +41,7 @@ def select_db(data_path, question_text):
 
   file_content = get_file_content(cursor_out, most_similar_id)
 
-  api_key = os.environ.get("GEMINI_API_KEY")
-  if not api_key:
-    print("Error: Not set $env:GEMINI_API_KEY")
-    sys.exit(1)
-
-  MODEL_ID = "gemini-2.0-flash"
-  client = genai.Client(api_key=api_key)
+  api_client = GeminiAPIClient()
 
   try:
     prompt = f"""Explain the content about below code by Japanese:
@@ -58,13 +50,12 @@ def select_db(data_path, question_text):
         {file_content}
         ```
         """
-
-    response = generate_gemini_response(client, MODEL_ID, prompt)
-    print(response.text)
+    response_text = api_client.generate_response(prompt)
+    print(response_text)
   except Exception as e:
     print(f"Error: failed to request gemini api: {e}")
   finally:
-    del client
+    del api_client
 
 
 def main():
