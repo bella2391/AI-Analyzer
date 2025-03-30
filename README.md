@@ -11,8 +11,6 @@ And you have to set environment value as `GEMINI_API_KEY`.
 Adapted as main ai chat analyzer.
 - numpy  
 Calculate cosine similarities.
-- jupyter  
-Using only Ipython.Markdown at present.
   
 see [requirements.txt](requirements.txt) in detail
 
