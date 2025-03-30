@@ -64,7 +64,7 @@ print(f"Most similar embedding ID: {most_similar_id}")
 api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
   print("Error: Not set $env:GEMINI_API_KEY")
-  exit()
+  sys.exit(1)
 
 # see docs: https://github.com/google-gemini/cookbook/blob/main/quickstarts/Get_started.ipynb
 MODEL_ID = "gemini-2.0-flash"
