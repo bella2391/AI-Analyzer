@@ -42,11 +42,11 @@ else:
 
 # calculate cosine similarity
 similarities = []
-for embedding_out, content in embeddings_out:
+for id_value, embedding_out in embeddings_out:
   try:
     embedding_list = np.frombuffer(embedding_out, dtype=np.float32)
     similarity = calculate_cosine_similarity(embedding_list, embedding_question)
-    similarities.append((similarity, content))
+    similarities.append((similarity, id_value))
   except json.JSONDecodeError as e:
     print(f"Warning: JSON decoding failed for one embedding: {e}")
     continue
@@ -56,9 +56,9 @@ if not similarities:
   sys.exit(1)
 
 similarities.sort(reverse=True, key=lambda x: x[0])
-code_snippet = similarities[0][1]
+most_similar_id = similarities[0][1]
 
-print(code_snippet)
+print(f"Most similar embedding ID: {most_similar_id}")
 
 # check existence of environment values
 api_key = os.environ.get("GEMINI_API_KEY")
