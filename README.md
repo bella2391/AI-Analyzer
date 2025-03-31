@@ -1,4 +1,5 @@
-# Ai-Analyzer
+# glyzer
+
 ## Require
 - Gemini API Key  
 This is got from [https://aistudio.google.com/](https://aistudio.google.com/).  
