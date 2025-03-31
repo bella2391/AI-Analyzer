@@ -1,4 +1,4 @@
-# AI-Analyzer
+# Ai-Analyzer
 ## Require
 - Gemini API Key  
 This is got from [https://aistudio.google.com/](https://aistudio.google.com/).  
@@ -15,7 +15,7 @@ Calculate cosine similarities.
 see [requirements.txt](requirements.txt) in detail
 
 ## Inspired
-[https://github.com/eliben/gemini-cli](https://github.com/eliben/gemini-cli)
+Gemini CLI tool: [eliben/gemini-cli](https://github.com/eliben/gemini-cli)
 
 ## License
 [MIT](LICENSE.txt)
