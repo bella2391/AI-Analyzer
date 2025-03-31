@@ -12,11 +12,30 @@ from src.utils.similarity import calculate_cosine_similarity
 
 def make_source_db(target_dir, extension_or_files):
   # gemini-cli を使用してソースデータベースを作成する処理
+  # Enter the directory path to create db source:
+
+  # Which one?
+  # [1] files (require file extension)
+  # [2] files-list (require comma-separated pair of filenames)
+
+  # if [1]
+  # Enter the file extensions:
+  # create or update json file for map between uuid and path, type like under:
+  # { path: "{path}", uuid: "{uuid}", type: "files/files-list", time: "{datetime}" }
+  # Executing subprocess: gemini-cli embed db ${PROJECT_ROOT}/data/{uuid}.db --files {path},*.{extension}
+  # if [2]
+  # Enter the files with comma-separated:
+  # create json file for map between uuid and path, type like under:
+  # { path: "{path}", uuid: "{uuid}", type: "files/files-list", time: "{datetime}" }
+  # Executing subprocess: gemini-cli embed db ${PROJECT_ROOT}/data/{uuid}.db --files {path},*.{extension}
+  # 'Saved at ~~'
   pass
 
 
 def make_question_db(question_text):
   # 質問テキストをデータベースに保存する処理
+  # Enter the plain text question:
+  # create or update above json
   pass
 
 
