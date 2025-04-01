@@ -1,6 +1,10 @@
 import argparse
+import json
 import os
 import sqlite3
+import subprocess
+import uuid
+from datetime import datetime
 
 import numpy as np
 
@@ -11,36 +15,87 @@ from src.utils.similarity import calculate_cosine_similarity
 
 
 def make_source_db(target_dir, extension_or_files):
-  # gemini-cli を使用してソースデータベースを作成する処理
-  # Enter the directory path to create db source:
+  project_root = os.environ.get("PROJECT_ROOT", ".")
+  data_path = os.path.join(project_root, "data")
+  unique_id = str(uuid.uuid4())
+  db_file_path = os.path.join(data_path, f"{unique_id}.db")
+  map_file_path = os.path.join(data_path, "source_db_map.json")
 
-  # Which one?
-  # [1] files (require file extension)
-  # [2] files-list (require comma-separated pair of filenames)
+  choice = input(
+    "Which one? [1] files (require file extension) [2] files-list (require comma-separated pair of filenames): "
+  )
 
-  # if [1]
-  # Enter the file extensions:
-  # create or update json file for map between uuid and path, type like under:
-  # { path: "{path}", uuid: "{uuid}", type: "files/files-list", time: "{datetime}" }
-  # Executing subprocess: gemini-cli embed db ${PROJECT_ROOT}/data/{uuid}.db --files {path},*.{extension}
-  # if [2]
-  # Enter the files with comma-separated:
-  # create json file for map between uuid and path, type like under:
-  # { path: "{path}", uuid: "{uuid}", type: "files/files-list", time: "{datetime}" }
-  # Executing subprocess: gemini-cli embed db ${PROJECT_ROOT}/data/{uuid}.db --files {path},*.{extension}
-  # 'Saved at ~~'
-  pass
+  if choice == "1":
+    extensions = input("Enter the file extensions: ")
+    files_arg = f"{target_dir},*.{extensions}"
+    file_type = "files"
+  elif choice == "2":
+    files_list = input("Enter the files with comma-separated: ")
+    files_arg = f"{target_dir},{files_list}"
+    file_type = "files-list"
+  else:
+    print("Invalid choice.")
+    return
+
+  subprocess.run(
+    ["gemini-cli", "embed", "db", db_file_path, "--files", files_arg], check=True
+  )
+
+  map_entry = {
+    "path": target_dir,
+    "uuid": unique_id,
+    "type": file_type,
+    "time": datetime.now().isoformat(),
+  }
+
+  if os.path.exists(map_file_path):
+    with open(map_file_path, "r") as f:
+      existing_map = json.load(f)
+      existing_map.append(map_entry)
+    with open(map_file_path, "w") as f:
+      json.dump(existing_map, f, indent=4)
+  else:
+    with open(map_file_path, "w") as f:
+      json.dump([map_entry], f, indent=4)
+
+  print(f"Saved at {db_file_path}")
 
 
 def make_question_db(question_text):
-  # 質問テキストをデータベースに保存する処理
-  # Enter the plain text question:
-  # create or update above json
-  pass
+  project_root = os.environ.get("PROJECT_ROOT", ".")
+  data_path = os.path.join(project_root, "data")
+  db_file_path = os.path.join(data_path, "question.db")
+  map_file_path = os.path.join(data_path, "question_map.json")
+
+  unique_id = str(uuid.uuid4())
+  txt_file_path = os.path.join(data_path, f"{unique_id}.txt")
+  with open(txt_file_path, "w") as f:
+    f.write(question_text)
+
+  subprocess.run(
+    ["gemini-cli", "embed", "db", db_file_path, "--files", txt_file_path], check=True
+  )
+
+  map_entry = {
+    "question": question_text,
+    "uuid": unique_id,
+    "time": datetime.now().isoformat(),
+  }
+
+  if os.path.exists(map_file_path):
+    with open(map_file_path, "r") as f:
+      existing_map = json.load(f)
+      existing_map.append(map_entry)
+    with open(map_file_path, "w") as f:
+      json.dump(existing_map, f, indent=4)
+  else:
+    with open(map_file_path, "w") as f:
+      json.dump([map_entry], f, indent=4)
+
+  print(f"Question saved at {db_file_path}")
 
 
 def select_db(data_path, question_text):
-  # データベースを選択し、質問に対する回答を生成する処理
   conn_out = sqlite3.connect(os.path.join(data_path, "fmc_common_database.db"))
   cursor_out = conn_out.cursor()
   embeddings_out = get_embeddings(cursor_out)
@@ -65,10 +120,10 @@ def select_db(data_path, question_text):
   try:
     prompt = f"""Explain the content about below code by Japanese:
 
-        ```{get_file_extension(most_similar_id)}
-        {file_content}
-        ```
-        """
+            ```{get_file_extension(most_similar_id)}
+            {file_content}
+            ```
+            """
     response_text = api_client.generate_response(prompt)
     print(response_text)
   except Exception as e:
