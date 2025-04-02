@@ -21,21 +21,29 @@ def make_source_db(target_dir, extension_or_files):
   db_file_path = os.path.join(data_path, f"{unique_id}.db")
   map_file_path = os.path.join(data_path, "source_db_map.json")
 
-  choice = input(
-    "Which one? [1] files (require file extension) [2] files-list (require comma-separated pair of filenames): "
-  )
+  if not target_dir:
+    target_dir = input("Enter the directory path to create db source: ")
 
-  if choice == "1":
-    extensions = input("Enter the file extensions: ")
-    files_arg = f"{target_dir},*.{extensions}"
-    file_type = "files"
-  elif choice == "2":
-    files_list = input("Enter the files with comma-separated: ")
-    files_arg = f"{target_dir},{files_list}"
-    file_type = "files-list"
+  if not extension_or_files:
+    choice = input(
+      "Which one? [1] files (require file extension) [2] files-list (require comma-separated pair of filenames): "
+    )
+    if choice == "1":
+      extensions = input("Enter the file extensions: ")
+      files_arg = f"{target_dir},*.{extensions}"
+      file_type = "files"
+    elif choice == "2":
+      files_list = input("Enter the files with comma-separated: ")
+      files_arg = f"{target_dir},{files_list}"
+      file_type = "files-list"
+    else:
+      print("Invalid choice.")
+      return
   else:
-    print("Invalid choice.")
-    return
+    files_arg = f"{target_dir},{extension_or_files}"
+    file_type = (
+      "files-list"  # or "files", depending on how extension_or_files is formatted
+    )
 
   subprocess.run(
     ["gemini-cli", "embed", "db", db_file_path, "--files", files_arg], check=True
@@ -135,11 +143,7 @@ def select_db(data_path, question_text):
 def main():
   parser = argparse.ArgumentParser(description="AI Code Analyzer")
   parser.add_argument(
-    "--make-source-db",
-    "-msb",
-    nargs=2,
-    metavar=("target_dir", "extension_or_files"),
-    help="Make source database",
+    "--make-source-db", "-msb", nargs="*", help="Make source database"
   )
   parser.add_argument(
     "--make-question-db",
@@ -163,13 +167,16 @@ def main():
   data_path = os.path.join(project_root, "data")
 
   if args.make_source_db:
-    make_source_db(args.make_source_db[0], args.make_source_db[1])
+    target_dir = args.make_source_db[0] if len(args.make_source_db) > 0 else None
+    extension_or_files = (
+      args.make_source_db[1] if len(args.make_source_db) > 1 else None
+    )
+    make_source_db(target_dir, extension_or_files)
   elif args.make_question_db:
     make_question_db(args.question_text)
   elif args.select_db:
     select_db(data_path, args.select_db)
   elif args.all:
-    # すべてのコマンドを実行する処理
     pass
   else:
     parser.print_help()
