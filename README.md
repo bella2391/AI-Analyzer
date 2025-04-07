@@ -19,4 +19,4 @@ see [requirements.txt](requirements.txt) in detail
 Gemini CLI tool: [eliben/gemini-cli](https://github.com/eliben/gemini-cli)
 
 ## License
-[MIT](LICENSE.txt)
+[MIT](LICENSE)
