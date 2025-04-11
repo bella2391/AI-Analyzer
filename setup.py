@@ -104,7 +104,7 @@ def make_question_db(question_text):
 
 
 def select_db(data_path, question_text):
-  conn_out = sqlite3.connect(os.path.join(data_path, "fmc_common_database.db"))
+  conn_out = sqlite3.connect(os.path.join(data_path, "common_database.db"))
   cursor_out = conn_out.cursor()
   embeddings_out = get_embeddings(cursor_out)
 
